@@ -3,9 +3,100 @@
     <head>
         <title>pocket-webtorrent</title>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <!-- Bootstrap CSS v5.2.0 -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
+        <!-- Bootstrap Icons v1.8.3-->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.3/font/bootstrap-icons.css">
     </head>
-    <body>
-        <script src="index.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/webtorrent@latest/webtorrent.min.js"></script>
+    <body class="bg-light" onload="">
+        <script src="https://cdn.jsdelivr.net/npm/webtorrent@latest/webtorrent.min.js"></script> <!--WebTorrent-->
+
+        <h1 class="container-fluid p-3 mb-0">pocket-webtorrent <a href="https://github.com/colelewis/pocket-webtorrent" style="color: black;"><i class="bi bi-github"></i></a>
+        </h1>
+
+        <div class="container-fluid p-4" id="section1">
+            <input class="form-control" id="magnetEntry" placeholder="magnet:">
+            <button class="btn btn-primary mt-2" id="magnetButton" onclick="submitMagnet()">Use magnet link</button>
+
+            <input class="form-control mt-4" type="file" id="torrentEntry" disabled> <!--disabled for now-->
+            <button class="btn btn-primary mt-2" id="torrentButton" disabled>Use .torrent file</button> <!--disabled for now-->
+
+            <div class="container-fluid p-3 rounded-3 border border-2 mt-3" id="dragDrop">
+                <p class="lead text-secondary p-3">Drag and drop a file to seed</p>
+            </div>
+        </div>
+
+        <div class="container-fluid p-4" id="section2">
+             <!--currently downloading section, display what's being downloaded-->
+            <!-- progress bar for download -->
+        </div>
+
+        <div class="container-fluid p-3" id="output">
+            <!--  -->
+        </div>
+
+        <script>
+            // pocket-webtorrent
+
+            // const disclaimer = () => {
+            //     if (!confirm("Beyond basic browser cache functions and cookie collection, this webpage does not collect user data. For utmost security and privacy, I highly advise that you use a VPN. As an intermediary and not a host, we take no liability for how this client is used.")) {
+            //         window.history.back();
+            //     }
+            // }
+
+            // let torrentValue = document.getElementById('torrentEntry').value;
+            let client = new WebTorrent();
+
+            client.on('error', function (err) {
+                console.error('Error: ' + err.message)
+            });
+
+            const submitMagnet = () => {
+                let magnetValue = document.getElementById('magnetEntry').value;
+                record('Adding: ' + magnetValue);
+                client.add(magnetValue, onSubmitMagnet);
+            }           
+
+            const onSubmitMagnet = (torrent) => {
+                record('Grabbing metadata...');
+                record(
+                    'Torrent information hash: ' + torrent.infoHash + '\n' +
+                    '<a href="' + torrent.magnetURI + '" target="_blank">[Magnet URI]</a>' + '\n' +
+                    '<a href="' + torrent.torrentFileBlobURL + '" target="_blank" download="' + torrent.name + '.torrent">[Download .torrent]</a>'
+                );
+
+                let timeSlice = setInterval(function() {
+                    record('Progress: ' + (torrent.progress * 100).toFixed(3) + '%')
+                }, 3000); // record torrent progress each 3 seconds to 3 decimal places
+                torrent.on('done', function() {
+                    record('Progress: 100%. All done!');
+                    clearInterval(timeSlice);
+
+
+                });
+
+            }
+
+            // let timeSlice = setInterval(function() {
+            //     record('Progress: ' + (torrent.progress * 100).toFixed(3) + '%')
+            // }, 3000); // record torrent progress each 3 seconds to 3 decimal places
+            // torrent.on('done', function() {
+            //     record('Progress: 100%. All done!');
+            //     clearInterval(timeSlice);
+            // });
+            
+            const submitTorrent = () => {
+
+            }
+
+            const record = (input) => {
+                let p = document.createElement('p');
+                p.innerHTML = input;
+                document.getElementById('output').appendChild(p);
+            }
+
+
+        </script>
+
     </body>
 </html>
