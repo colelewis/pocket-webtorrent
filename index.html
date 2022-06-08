@@ -41,7 +41,6 @@
                 }
             }
 
-            // let torrentValue = document.getElementById('torrentEntry').value;
             let client = new WebTorrent();
 
             client.on('error', function (err) {
@@ -91,6 +90,10 @@
 
             // }
 
+            // const onSubmitTorrentFile = () => {
+
+            // }
+
             function handleDrop(event) {
                 event.preventDefault(); // keeps file from being opened when dropped
                 if (event.dataTransfer.items) {
@@ -99,9 +102,13 @@
                             let file = event.dataTransfer.items[i].getAsFile();
                             record('File submitted: ' + file.name);
                             client.seed(file, function(torrent) {
-                                record('Client is seeding: ' + torrent.magnetURI);
+                                record('Client is seeding: ' + torrent.magnetURI + '<a href="' + torrent.magnetURI + '"> [Magnet URI]</a>');
+                                navigator.clipboard.writeText(torrent.magnetURI);
+                                record('Magnet URI copied to clipboard.');
                                 setInterval(function() {
-                                    record('Total bytes uploaded to peers: ' + torrent.uploaded + ' bytes');
+                                    if (torrent.uploaded !== 0) {
+                                        record('Total bytes uploaded to peers: ' + torrent.uploaded + ' bytes');
+                                    }
                                 }, 3000);
                             });
                         }
