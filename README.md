@@ -6,9 +6,14 @@ Minimal JS web torrent client built with [WebTorrent](webtorrent.io)
 To use:
 * `git clone https://github.com/colelewis/pocket-webtorrent.git`
 * Navigate to downloaded directory
-* Open `index.html` in your desired web folder
+* Serve `index.html` using a local web server.
+  * Recommended method: `python3 -m http.server 8000`
+  * Navigate to `localhost:8000` in your web browser.
 
-The pocket-webtorrent client can download or stream files from magnet/torrent link. The client can also create new torrents and seed them from file(s) you provide. Supports the [HTML5 Drag and Drop API](https://developer.mozilla.org/en-US/docs/Web/API/HTML_Drag_and_Drop_API).
+
+The pocket-webtorrent client can download or stream files from magnet link/torrent file. The client can also create new torrents and seed them from file(s) you provide. Supports the [HTML5 Drag and Drop API](https://developer.mozilla.org/en-US/docs/Web/API/HTML_Drag_and_Drop_API). 
+
+The pocket-webtorrent client only supports WebRTC seeded torrents or torrents with a valid WebTorrent webseed.
 
 Here's a sample magnet link to Sintel, a free, Creative Commons movie:
 
