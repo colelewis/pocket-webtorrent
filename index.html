@@ -13,22 +13,27 @@
         <!--WebTorrent-->
         <script src="https://cdn.jsdelivr.net/npm/webtorrent@latest/webtorrent.min.js"></script> 
 
-        <h1 class="container-fluid p-3 mb-0">pocket-webtorrent <a href="https://github.com/colelewis/pocket-webtorrent" style="color: black;"><i class="bi bi-github"></i></a>
-        </h1>
+        <h1 class="container-fluid p-3 mb-0">pocket-webtorrent <a href="https://github.com/colelewis/pocket-webtorrent" style="color: black;"><i class="bi bi-github"></i></a></h1>
 
         <div class="container-fluid p-4" id="section1">
             <input class="form-control" id="magnetEntry" placeholder="magnet:">
             <button class="btn btn-primary mt-2" id="magnetButton" onclick="submitMagnet()">Use magnet link</button>
 
-            <input class="form-control mt-4" type="file" id="torrentEntry" disabled> <!--disabled for now-->
-            <button class="btn btn-primary mt-2" id="torrentButton" disabled>Use .torrent file</button> <!--disabled for now-->
+            <input class="form-control mt-4" type="file" id="torrentEntry">
+            <button class="btn btn-primary mt-2" id="torrentButton" onclick="submitTorrent()">Use .torrent file</button>
+
+            <div class="container-fluid p-3 rounded-3 border border-2 mt-3" id="dashboard">
+                <h5>Statistics</h5>
+            </div>  
+
+            <button class="btn btn-primary mt-3" id="reset" onclick="reset()">Reset</button> <!-- reset and destroy torrent -->
 
             <div class="container-fluid p-3 rounded-3 border border-2 mt-3" id="draganddrop" ondrop="handleDrop(event)" ondragover="handleDragOver(event)">
-                <p class="lead text-secondary p-3">Drag and drop a file to seed</p>
+                <p class="lead text-secondary p-3">Drag and drop a file to seed!</p>
             </div>
         </div>
 
-        <div class="container-fluid p-3" id="output">
+        <div class="container-fluid p-3" id="output" style="overflow-y: scroll;">
             <!--  -->
         </div>
 
@@ -36,15 +41,15 @@
             // pocket-webtorrent
 
             const disclaimer = () => {
-                if (!confirm("Beyond basic browser cache functions and cookie collection, this webpage does not collect user data. \nFor utmost security and privacy, I highly advise that you use a VPN.\npocket-webtorrent will only work with WebRTC seeded torrents or torrents with a valid WebTorrent webseed.\nAs an intermediary and not a host, we take no liability for how this client is used. By selecting 'OK' you indemnify the \nPlease click the Github icon at the top of the page to view the source code.")) {
+                if (!confirm("Beyond basic browser cache functions and cookie collection, this webpage does not collect user data. \nFor utmost security and privacy, I highly advise that you use a VPN.\npocket-webtorrent will only work with WebRTC seeded torrents or torrents with a valid WebTorrent webseed.\nAs an intermediary and not a host, we take no liability for how this client is used or any content transmitted.\nPlease click the Github icon at the top of the page to view the source code.")) {
                     window.history.back();
                 }
             }
 
             let client = new WebTorrent();
 
-            client.on('error', function (err) {
-                console.error('Error: ' + err.message)
+            client.on('error', function (error) {
+                record(error.message);
             });
 
             const submitMagnet = () => {
@@ -52,7 +57,7 @@
                 if (magnetValue === "") {
                     alert('Please enter valid magnet link.');
                 }
-                record('Adding: ' + magnetValue);
+                record('Adding new torrent...');
                 client.add(magnetValue, onSubmitMagnet);
             }           
 
@@ -64,35 +69,34 @@
                     '<a href="' + torrent.torrentFileBlobURL + '" target="_blank" download="' + torrent.name + '.torrent">[Download .torrent]</a>'
                 );
 
-                let timeSlice = setInterval(function() {
-                    record('Progress: ' + (torrent.progress * 100).toFixed(3) + '%')
-                }, 1000); // record torrent progress each second to 3 decimal places
+                dashboard(torrent);
 
                 torrent.on('done', function() {
                     record('Progress: 100%. All done!');
-                    clearInterval(timeSlice);
-                });
-
-                torrent.files.forEach(function(file) {
-                    // file.appendTo('output');
-                    file.getBlobURL(function (error, url) {
-                        if (error) {
-                            return record(error.message);
-                        }
-                        record('File completed.');
-                        record('<a href="' + url + '">Download file: ' + file.name + '</a>');
+                    torrent.files.forEach(function(file) {
+                        file.getBlobURL(function (error, url) {
+                            if (error) {
+                                return record(error.message);
+                            }
+                            record('File completed.');
+                            record('<a href="' + url + '">Download file: ' + file.name + '</a>');
+                        });
                     });
                 });
-
             }
             
-            // const submitTorrent = () => {
+            const submitTorrent = () => {
+                let submittedTorrentFile = document.getElementById('torrentEntry').files[0]; // there will only be one file since the multiple attribute is not present in the <input> element
+                if (!submittedTorrentFile) {
+                    alert('Please upload valid .torrent file');
+                }
+                record('Adding new torrent...');
+                client.add(submittedTorrentFile, onSubmitMagnet);
+            }
 
-            // }
-
-            // const onSubmitTorrentFile = () => {
-
-            // }
+            const onSubmitTorrentFile = () => {
+                alert('test');
+            }
 
             function handleDrop(event) {
                 event.preventDefault(); // keeps file from being opened when dropped
@@ -102,14 +106,14 @@
                             let file = event.dataTransfer.items[i].getAsFile();
                             record('File submitted: ' + file.name);
                             client.seed(file, function(torrent) {
-                                record('Client is seeding: ' + torrent.magnetURI + '<a href="' + torrent.magnetURI + '"> [Magnet URI]</a>');
+                                record('Client is seeding: ' + '<a href="' + torrent.magnetURI + '"> [Magnet URI]</a>');
                                 navigator.clipboard.writeText(torrent.magnetURI);
                                 record('Magnet URI copied to clipboard.');
                                 setInterval(function() {
                                     if (torrent.uploaded !== 0) {
                                         record('Total bytes uploaded to peers: ' + torrent.uploaded + ' bytes');
                                     }
-                                }, 3000);
+                                }, 3000); // record number of uploaded bytes in seeding every 3 seconds
                             });
                         }
                     }
@@ -122,9 +126,48 @@
                 event.preventDefault(); // keeps file from being opened when dragged over
             }
 
+            const dashboard = (torrent) => {
+                let recv = document.createElement('p');
+                let dspd = document.createElement('p');
+                let progress = document.createElement('p');
+                let tname = document.createElement('p');
+                tname.innerHTML = 'Torrent name: ' + torrent.name;
+
+                setInterval(function() {
+                    recv.innerHTML = 'Total megabytes received from peers: ' + (torrent.received / 1000000).toFixed(1) + ' MB';
+                    dspd.innerHTML = 'Download speed: ' + (torrent.downloadSpeed / 1000000).toFixed(1) + ' MB/sec';
+                    progress.innerHTML = 'Progress: ' + (torrent.progress * 100).toFixed(3) + '%';
+                }, 500);
+
+                document.getElementById('dashboard').appendChild(tname);
+                document.getElementById('dashboard').appendChild(recv);
+                document.getElementById('dashboard').appendChild(dspd);
+                document.getElementById('dashboard').appendChild(progress);
+
+            }
+
+            const reset = (torrent) => {
+                document.getElementById('magnetEntry').value = "";
+                for (let i = 0; i < client.torrents.length; i++) {
+                    client.torrents[i].destroy();
+                }
+                
+                while (document.getElementById('dashboard').firstChild) {
+                    document.getElementById('dashboard').removeChild(document.getElementById('dashboard').firstChild);
+                }
+
+                while (document.getElementById('output').firstChild) {
+                    document.getElementById('output').removeChild(document.getElementById('output').firstChild);
+                }
+
+                document.getElementById('torrentEntry').value = "";
+
+            }
+
             const record = (input) => {
                 let p = document.createElement('p');
                 p.innerHTML = new Date().toLocaleTimeString() + ": " + input;
+                p.setAttribute('class', 'lead')
                 document.getElementById('output').appendChild(p);
             }
 

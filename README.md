@@ -14,6 +14,7 @@ To use:
 The pocket-webtorrent client can download or stream files from magnet link/torrent file. The client can also create new torrents and seed them from file(s) you provide. Supports the [HTML5 Drag and Drop API](https://developer.mozilla.org/en-US/docs/Web/API/HTML_Drag_and_Drop_API). 
 
 The pocket-webtorrent client only supports WebRTC seeded torrents or torrents with a valid WebTorrent webseed.
+Performance may suffer when handling large files.
 
 Here's a sample magnet link to Sintel, a free, Creative Commons movie:
 
