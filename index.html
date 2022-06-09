@@ -33,13 +33,9 @@
             </div>
         </div>
 
-        <div class="container-fluid p-3" id="output" style="overflow-y: scroll;">
-            <!--  -->
-        </div>
+        <div class="container-fluid p-3" id="output" style="overflow-y: scroll;"></div>
 
         <script>
-            // pocket-webtorrent
-
             const disclaimer = () => {
                 if (!confirm("Beyond basic browser cache functions and cookie collection, this webpage does not collect user data. \nFor utmost security and privacy, I highly advise that you use a VPN.\npocket-webtorrent will only work with WebRTC seeded torrents or torrents with a valid WebTorrent webseed.\nAs an intermediary and not a host, we take no liability for how this client is used or any content transmitted.\nPlease click the Github icon at the top of the page to view the source code.")) {
                     window.history.back();
@@ -170,9 +166,6 @@
                 p.setAttribute('class', 'lead')
                 document.getElementById('output').appendChild(p);
             }
-
-
         </script>
-
     </body>
 </html>

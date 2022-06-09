@@ -22,4 +22,4 @@ Here's a sample magnet link to Sintel, a free, Creative Commons movie:
 
 ## Demonstration
 
-Try pocket-webtorrent out [here](https://menthol.cloud/pocket-webtorrent)
+Try pocket-webtorrent out [here](https://menthol.cloud/pocket-webtorrent.html)
